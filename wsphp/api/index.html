@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test API</title>
+    <style>
+        :root { --primary: #2563eb; --danger: #dc2626; --success: #16a34a; --bg: #f8fafc; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg); margin: 0; padding: 20px; color: #1e293b; }
+        .container { max-width: 900px; margin: 0 auto; }
+        .card { background: white; padding: 2rem; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); margin-bottom: 2rem; }
+        h2 { margin-top: 0; color: #0f172a; border-bottom: 2px solid #e2e8f0; padding-bottom: 10px; }
+        
+        /* Form Styles */
+        .form-group { display: grid; grid-template-columns: 1fr 1fr auto; gap: 10px; margin-bottom: 1rem; }
+        input { padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 14px; }
+        input:focus { outline: 2px solid var(--primary); border-color: transparent; }
+        
+        /* Table Styles */
+        table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #e2e8f0; }
+        th { background: #f1f5f9; font-weight: 600; }
+        tr:hover { background: #f8fafc; }
+
+        /* Buttons */
+        button { cursor: pointer; padding: 8px 16px; border: none; border-radius: 6px; font-weight: 500; transition: all 0.2s; }
+        .btn-add { background: var(--primary); color: white; width: 100%; }
+        .btn-edit { background: #e2e8f0; color: #475569; margin-right: 5px; }
+        .btn-delete { background: #fee2e2; color: var(--danger); }
+        button:hover { opacity: 0.9; transform: translateY(-1px); }
+        
+        .status-badge { font-size: 12px; padding: 4px 8px; border-radius: 12px; background: #dcfce7; color: var(--success); display: none; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="card">
+        <h2>Gestione Utenti</h2>
+        <div id="userForm">
+            <input type="hidden" id="editId">
+            <div class="form-group">
+                <input type="text" id="nome" placeholder="Nome completo" required>
+                <input type="email" id="email" placeholder="Email (es: mario@esempio.it)" required>
+                <button onclick="saveUser()" id="saveBtn" class="btn-add">Aggiungi Utente</button>
+            </div>
+            <button onclick="resetForm()" id="cancelBtn" style="display:none; background:#94a3b8; color:white;">Annulla Modifica</button>
+        </div>
+    </div>
+
+    <div class="card">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <h3>Lista Utenti</h3>
+            <span id="status" class="status-badge">Sincronizzato</span>
+        </div>
+        <table id="userTable">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nome</th>
+                    <th>Email</th>
+                    <th>Azioni</th>
+                </tr>
+            </thead>
+            <tbody id="userList">
+                </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+const baseUrl = "http://localhost/wsphp/api/user";
+
+// Carica utenti all'avvio
+document.addEventListener('DOMContentLoaded', fetchUsers);
+
+async function fetchUsers() {
+    try {
+        const res = await fetch(baseUrl);
+        const data = await res.json();
+        renderTable(data);
+    } catch (err) {
+        console.error("Errore caricamento:", err);
+    }
+}
+
+function renderTable(users) {
+    const tbody = document.getElementById('userList');
+    tbody.innerHTML = '';
+    
+    // Gestiamo sia se l'API restituisce un oggetto che un array
+    Object.keys(users).forEach(id => {
+        const user = users[id];
+        tbody.innerHTML += `
+            <tr>
+                <td>#${id}</td>
+                <td>${user.nome}</td>
+                <td>${user.email}</td>
+                <td>
+                    <button class="btn-edit" onclick="editUser('${id}', '${user.nome}', '${user.email}')">Modifica</button>
+                    <button class="btn-delete" onclick="deleteUser('${id}')">Elimina</button>
+                </td>
+            </tr>
+        `;
+    });
+}
+
+async function saveUser() {
+    const id = document.getElementById('editId').value;
+    const nome = document.getElementById('nome').value;
+    const email = document.getElementById('email').value;
+
+    if(!nome || !email) return alert("Compila tutti i campi!");
+
+    const method = id === "" ? "POST" : "PUT";
+    const url = id === "" ? baseUrl : `${baseUrl}/${id}`;
+
+    try {
+        const res = await fetch(url, {
+            method: method,
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ nome, email })
+        });
+
+        if(res.ok) {
+            resetForm();
+            fetchUsers();
+            showStatus();
+        }
+    } catch (err) {
+        alert("Errore durante il salvataggio");
+    }
+}
+
+async function deleteUser(id) {
+    if(!confirm("Sei sicuro di voler eliminare questo utente?")) return;
+
+    try {
+        await fetch(`${baseUrl}/${id}`, { method: "DELETE" });
+        fetchUsers();
+        showStatus();
+    } catch (err) {
+        console.error(err);
+    }
+}
+
+function editUser(id, nome, email) {
+    document.getElementById('editId').value = id;
+    document.getElementById('nome').value = nome;
+    document.getElementById('email').value = email;
+    document.getElementById('saveBtn').innerText = "Aggiorna Utente";
+    document.getElementById('cancelBtn').style.display = "inline-block";
+}
+
+function resetForm() {
+    document.getElementById('editId').value = "";
+    document.getElementById('nome').value = "";
+    document.getElementById('email').value = "";
+    document.getElementById('saveBtn').innerText = "Aggiungi Utente";
+    document.getElementById('cancelBtn').style.display = "none";
+}
+
+function showStatus() {
+    const badge = document.getElementById('status');
+    badge.style.display = "inline";
+    setTimeout(() => badge.style.display = "none", 2000);
+}
+</script>
+
+</body>
+</html>

@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Test WS PHP</title>
+<style>
+body { font-family: monospace; background:#111; color:#0f0; padding:20px; }
+pre { background:#000; padding:10px; border:1px solid #0f0; overflow:auto; }
+button { margin:5px; padding:8px; }
+</style>
+</head>
+<body>
+
+<h2>Test Web Service</h2>
+
+<button onclick="testJSON()">POST JSON → XML</button>
+<button onclick="testXML1()">POST XML singolo</button>
+<button onclick="testXML2()">POST XML multiplo</button>
+
+<pre id="output"></pre>
+
+<script>
+const url = "http://localhost/wsphp/index.php";
+const output = document.getElementById("output");
+
+function log(text) {
+    output.textContent += text + "\n";
+}
+
+function clearLog() {
+    output.textContent = "";
+}
+
+// Format XML
+function formatXML(xml) {
+    const PADDING = "  ";
+    let formatted = "";
+    let pad = 0;
+
+    xml.split(/>\s*</).forEach(node => {
+        if (node.match(/^\/\w/)) pad--;
+        formatted += PADDING.repeat(pad) + "<" + node + ">\n";
+        if (node.match(/^<?\w[^>]*[^\/]$/)) pad++;
+    });
+
+    return formatted;
+}
+
+async function sendRequest(contentType, acceptType, body) {
+    clearLog();
+
+    try {
+        const response = await fetch(url, {
+            method: "POST",
+            headers: {
+                "Content-Type": contentType,
+                "Accept": acceptType
+            },
+            body: body
+        });
+
+        log("STATUS: " + response.status);
+        log("HEADERS:");
+        response.headers.forEach((value, key) => {
+            log("  " + key + ": " + value);
+        });
+
+        const text = await response.text();
+
+        log("\nBODY:\n");
+
+        if (acceptType.includes("json")) {
+            try {
+                const json = JSON.parse(text);
+                log(JSON.stringify(json, null, 4));
+            } catch {
+                log(text);
+            }
+        } else if (acceptType.includes("xml")) {
+            log(formatXML(text));
+        } else {
+            log(text);
+        }
+
+    } catch (error) {
+        log("ERRORE: " + error);
+    }
+}
+
+// 1️⃣ JSON → XML
+function testJSON() {
+    const data = JSON.stringify({
+        nome: "jjj",
+        valore: "1"
+    });
+
+    sendRequest(
+        "application/json",
+        "application/xml",
+        data
+    );
+}
+
+// 2️⃣ XML singolo
+function testXML1() {
+    const data = `<?xml version="1.0"?>
+<doc>
+    <nome>fff</nome>
+    <valore>2</valore>
+</doc>`;
+
+    sendRequest(
+        "application/xml",
+        "application/xml",
+        data
+    );
+}
+
+// 3️⃣ XML multiplo
+function testXML2() {
+    const data = `<array>
+    <nome>fff</nome>
+    <valore>2</valore>
+    <nome>aaa</nome>
+    <valore>4</valore>
+</array>`;
+
+    sendRequest(
+        "application/xml",
+        "application/xml",
+        data
+    );
+}
+</script>
+
+</body>
+</html>

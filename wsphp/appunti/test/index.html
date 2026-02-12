@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<body>
+
+<h2>Richiesta POST con JSON</h2>
+<p id="demo"></p>
+
+<script>
+const xmlhttp = new XMLHttpRequest();
+
+xmlhttp.onload = function() {
+
+  console.log("STATUS:", this.status);
+  console.log("RESPONSE:", this.responseText);
+
+  try {
+    const myObj = JSON.parse(this.responseText);
+    document.getElementById("demo").innerHTML = myObj.valore;
+  } catch (e) {
+    document.getElementById("demo").innerHTML = "Risposta non JSON:<br>" + this.responseText;
+  }
+}
+
+const formData = { nome:"prova", valore:3 };
+xmlhttp.open("POST", "../index.php");
+xmlhttp.setRequestHeader("Content-type","application/json");
+xmlhttp.setRequestHeader("Accept","application/json");
+
+xmlhttp.send(JSON.stringify(formData));
+</script>
+
+</body>
+</html>
