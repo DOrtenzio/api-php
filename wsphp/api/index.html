@@ -5,31 +5,207 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Test API</title>
     <style>
-        :root { --primary: #2563eb; --danger: #dc2626; --success: #16a34a; --bg: #f8fafc; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg); margin: 0; padding: 20px; color: #1e293b; }
-        .container { max-width: 900px; margin: 0 auto; }
-        .card { background: white; padding: 2rem; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); margin-bottom: 2rem; }
-        h2 { margin-top: 0; color: #0f172a; border-bottom: 2px solid #e2e8f0; padding-bottom: 10px; }
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1e40af;
+            --danger: #dc2626;
+            --success: #16a34a;
+            --bg: #f1f5f9;
+            --card-bg: #ffffff;
+            --text: #1e293b;
+            --border: #e2e8f0;
+        }
         
-        /* Form Styles */
-        .form-group { display: grid; grid-template-columns: 1fr 1fr auto; gap: 10px; margin-bottom: 1rem; }
-        input { padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 14px; }
-        input:focus { outline: 2px solid var(--primary); border-color: transparent; }
+        /* Reset */
+        * {
+            box-sizing: border-box;
+        }
         
-        /* Table Styles */
-        table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
-        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #e2e8f0; }
-        th { background: #f1f5f9; font-weight: 600; }
-        tr:hover { background: #f8fafc; }
-
+        /* Body */
+        body {
+            font-family: 'Inter', 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #e2e8f0, #f8fafc);
+            margin: 0;
+            padding: 30px 15px;
+            color: var(--text);
+        }
+        
+        /* Container */
+        .container {
+            max-width: 1000px;
+            margin: auto;
+        }
+        
+        /* Card */
+        .card {
+            background: var(--card-bg);
+            padding: 2rem;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+            margin-bottom: 2rem;
+            transition: transform 0.2s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-3px);
+        }
+        
+        /* Titles */
+        h2, h3 {
+            margin-top: 0;
+            font-weight: 600;
+        }
+        
+        /* Form */
+        .form-group {
+            display: grid;
+            grid-template-columns: 1fr 120px 160px auto;
+            gap: 12px;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        
+        input {
+            padding: 12px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.2s ease;
+        }
+        
+        input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+        }
+        
         /* Buttons */
-        button { cursor: pointer; padding: 8px 16px; border: none; border-radius: 6px; font-weight: 500; transition: all 0.2s; }
-        .btn-add { background: var(--primary); color: white; width: 100%; }
-        .btn-edit { background: #e2e8f0; color: #475569; margin-right: 5px; }
-        .btn-delete { background: #fee2e2; color: var(--danger); }
-        button:hover { opacity: 0.9; transform: translateY(-1px); }
+        button {
+            cursor: pointer;
+            padding: 10px 16px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
         
-        .status-badge { font-size: 12px; padding: 4px 8px; border-radius: 12px; background: #dcfce7; color: var(--success); display: none; }
+        .btn-add {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .btn-add:hover {
+            background: var(--primary-dark);
+        }
+        
+        .btn-edit {
+            background: #e2e8f0;
+            color: #334155;
+        }
+        
+        .btn-edit:hover {
+            background: #cbd5e1;
+        }
+        
+        .btn-delete {
+            background: #fee2e2;
+            color: var(--danger);
+        }
+        
+        .btn-delete:hover {
+            background: #fecaca;
+        }
+        
+        #cancelBtn {
+            background: #64748b;
+            color: white;
+            margin-top: 10px;
+        }
+        
+        #cancelBtn:hover {
+            background: #475569;
+        }
+        
+        /* Table */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+            overflow: hidden;
+            border-radius: 12px;
+        }
+        
+        thead {
+            background: var(--primary);
+            color: white;
+        }
+        
+        th, td {
+            padding: 14px;
+            text-align: left;
+        }
+        
+        tbody tr {
+            border-bottom: 1px solid var(--border);
+            transition: background 0.2s ease;
+        }
+        
+        tbody tr:hover {
+            background: #f8fafc;
+        }
+        
+        /* Badge */
+        .status-badge {
+            font-size: 12px;
+            padding: 6px 10px;
+            border-radius: 20px;
+            background: #dcfce7;
+            color: var(--success);
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .form-group {
+                grid-template-columns: 1fr;
+            }
+        
+            table, thead, tbody, th, td, tr {
+                display: block;
+            }
+        
+            thead {
+                display: none;
+            }
+        
+            tbody tr {
+                background: white;
+                margin-bottom: 1rem;
+                padding: 1rem;
+                border-radius: 12px;
+                box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            }
+        
+            td {
+                padding: 8px 0;
+                border: none;
+            }
+        
+            td::before {
+                content: attr(data-label);
+                font-weight: bold;
+                display: block;
+                font-size: 12px;
+                color: #64748b;
+                margin-bottom: 2px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -41,7 +217,8 @@
             <input type="hidden" id="editId">
             <div class="form-group">
                 <input type="text" id="nome" placeholder="Nome completo" required>
-                <input type="email" id="email" placeholder="Email (es: mario@esempio.it)" required>
+                <input type="number" id="eta" placeholder="Età" required>
+                <input type="date" id="data" required>
                 <button onclick="saveUser()" id="saveBtn" class="btn-add">Aggiungi Utente</button>
             </div>
             <button onclick="resetForm()" id="cancelBtn" style="display:none; background:#94a3b8; color:white;">Annulla Modifica</button>
@@ -58,7 +235,8 @@
                 <tr>
                     <th>ID</th>
                     <th>Nome</th>
-                    <th>Email</th>
+                    <th>Età</th>
+                    <th>Data</th>
                     <th>Azioni</th>
                 </tr>
             </thead>
@@ -69,102 +247,117 @@
 </div>
 
 <script>
-const baseUrl = "http://localhost/wsphp/api/user";
-
-// Carica utenti all'avvio
-document.addEventListener('DOMContentLoaded', fetchUsers);
-
-async function fetchUsers() {
-    try {
-        const res = await fetch(baseUrl);
-        const data = await res.json();
-        renderTable(data);
-    } catch (err) {
-        console.error("Errore caricamento:", err);
-    }
-}
-
-function renderTable(users) {
-    const tbody = document.getElementById('userList');
-    tbody.innerHTML = '';
+    const baseUrl = "http://localhost/wsphp/api";
     
-    // Gestiamo sia se l'API restituisce un oggetto che un array
-    Object.keys(users).forEach(id => {
-        const user = users[id];
-        tbody.innerHTML += `
-            <tr>
-                <td>#${id}</td>
-                <td>${user.nome}</td>
-                <td>${user.email}</td>
-                <td>
-                    <button class="btn-edit" onclick="editUser('${id}', '${user.nome}', '${user.email}')">Modifica</button>
-                    <button class="btn-delete" onclick="deleteUser('${id}')">Elimina</button>
-                </td>
-            </tr>
-        `;
-    });
-}
+    // Carica utenti
+    document.addEventListener('DOMContentLoaded', fetchUsers);
+    
+    async function fetchUsers() {
+        try {
+            const res = await fetch(baseUrl, {
+                headers: { "Accept": "application/json" }
+            });
+            const data = await res.json();
+            renderTable(data);
+        } catch (err) {
+            console.error("Errore caricamento:", err);
+        }
+    }
+    
+    function renderTable(users) {
+        const tbody = document.getElementById('userList');
+        tbody.innerHTML = '';
 
-async function saveUser() {
-    const id = document.getElementById('editId').value;
-    const nome = document.getElementById('nome').value;
-    const email = document.getElementById('email').value;
-
-    if(!nome || !email) return alert("Compila tutti i campi!");
-
-    const method = id === "" ? "POST" : "PUT";
-    const url = id === "" ? baseUrl : `${baseUrl}/${id}`;
-
-    try {
-        const res = await fetch(url, {
-            method: method,
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ nome, email })
+        Object.keys(users).forEach(id => {
+            const user = users[id];
+            tbody.innerHTML += `
+                <tr>
+                    <td data-label="ID">#${id}</td>
+                    <td data-label="Nome">${user.name}</td>
+                    <td data-label="Età">${user.age}</td>
+                    <td data-label="Data">${user.date}</td>
+                    <td data-label="Azioni">
+                        <button class="btn-edit" onclick="editUser('${id}', '${user.name}', '${user.age}', '${user.date}')">Modifica</button>
+                        <button class="btn-delete" onclick="deleteUser('${id}')">Elimina</button>
+                    </td>
+                </tr>
+            `;
         });
-
-        if(res.ok) {
-            resetForm();
+    }
+    
+    async function saveUser() {
+        const id = document.getElementById('editId').value;
+        const name = document.getElementById('nome').value;
+        const age = document.getElementById('eta').value;
+        const date = document.getElementById('data').value;
+    
+        if(!name || !age || !date) {
+            alert("Compila tutti i campi!");
+            return;
+        }
+    
+        const method = id === "" ? "POST" : "PUT";
+        const url = id === "" ? baseUrl : `${baseUrl}/${id}`;
+    
+        try {
+            const res = await fetch(url, {
+                method: method,
+                headers: {
+                    "Content-Type": "application/json",
+                    "Accept": "application/json"
+                },
+                body: JSON.stringify({ name, age, date })
+            });
+    
+            if(res.ok) {
+                resetForm();
+                fetchUsers();
+                showStatus();
+            } else {
+                alert("Errore nel salvataggio");
+            }
+        } catch (err) {
+            alert("Errore durante il salvataggio");
+        }
+    }
+    
+    async function deleteUser(id) {
+        if(!confirm("Sei sicuro di voler eliminare questo utente?")) return;
+    
+        try {
+            await fetch(`${baseUrl}/${id}`, { method: "DELETE" });
             fetchUsers();
             showStatus();
+        } catch (err) {
+            console.error(err);
         }
-    } catch (err) {
-        alert("Errore durante il salvataggio");
     }
-}
-
-async function deleteUser(id) {
-    if(!confirm("Sei sicuro di voler eliminare questo utente?")) return;
-
-    try {
-        await fetch(`${baseUrl}/${id}`, { method: "DELETE" });
-        fetchUsers();
-        showStatus();
-    } catch (err) {
-        console.error(err);
+    
+    function editUser(id, name, age, date) {
+        document.getElementById('editId').value = id;
+        document.getElementById('nome').value = name;
+        document.getElementById('eta').value = age;
+        document.getElementById('data').value = date;
+    
+        document.getElementById('saveBtn').innerText = "Aggiorna Utente";
+        document.getElementById('cancelBtn').style.display = "inline-block";
     }
-}
-
-function editUser(id, nome, email) {
-    document.getElementById('editId').value = id;
-    document.getElementById('nome').value = nome;
-    document.getElementById('email').value = email;
-    document.getElementById('saveBtn').innerText = "Aggiorna Utente";
-    document.getElementById('cancelBtn').style.display = "inline-block";
-}
-
-function resetForm() {
-    document.getElementById('editId').value = "";
-    document.getElementById('nome').value = "";
-    document.getElementById('email').value = "";
-    document.getElementById('saveBtn').innerText = "Aggiungi Utente";
-    document.getElementById('cancelBtn').style.display = "none";
-}
-
-function showStatus() {
-    const badge = document.getElementById('status');
-    badge.style.display = "inline";
-    setTimeout(() => badge.style.display = "none", 2000);
-}
+    
+    function resetForm() {
+        document.getElementById('editId').value = "";
+        document.getElementById('nome').value = "";
+        document.getElementById('eta').value = "";
+        document.getElementById('data').value = "";
+    
+        document.getElementById('saveBtn').innerText = "Aggiungi Utente";
+        document.getElementById('cancelBtn').style.display = "none";
+    }
+    
+    function showStatus() {
+        const badge = document.getElementById('status');
+        badge.style.display = "inline";
+        setTimeout(() => badge.style.display = "none", 2000);
+    }
 </script>
 
 </body>

@@ -1,0 +1,9 @@
+# Abilita il Rewrite Engine
+RewriteEngine On
+
+# Assicurati che i file reali esistano
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+
+# Tutto il resto viene riscritto verso index.php
+RewriteRule ^(.*)$ index.php [QSA,L]

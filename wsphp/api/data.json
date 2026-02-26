@@ -1,14 +1,17 @@
 {
+    "0": {
+        "name": "Mario Rossi",
+        "age": 30,
+        "date": "2025-01-15"
+    },
     "1": {
-        "nome": "Luigi Verdi",
-        "email": "luigi.verdi@email.cm"
+        "name": "Luca Bianchi",
+        "age": 25,
+        "date": "2024-12-10"
     },
     "2": {
-        "nome": "Mario",
-        "email": "mario@email.com"
-    },
-    "3": {
-        "nome": "Mario",
-        "email": "mario@email.com"
+        "name": "Giulia Verdi",
+        "age": 28,
+        "date": "2025-02-01"
     }
 }
