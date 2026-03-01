@@ -217,7 +217,7 @@
             <input type="hidden" id="editId">
             <div class="form-group">
                 <input type="text" id="nome" placeholder="Nome completo" required>
-                <input type="number" id="eta" placeholder="Età" required>
+                <input type="number" id="eta" placeholder="Età" required min="0" max="150">
                 <input type="date" id="data" required>
                 <button onclick="saveUser()" id="saveBtn" class="btn-add">Aggiungi Utente</button>
             </div>
@@ -261,6 +261,7 @@
             renderTable(data);
         } catch (err) {
             console.error("Errore caricamento:", err);
+            alert("Errore nel caricamento degli utenti. Verifica che il server sia attivo.");
         }
     }
     
@@ -270,29 +271,59 @@
 
         Object.keys(users).forEach(id => {
             const user = users[id];
-            tbody.innerHTML += `
-                <tr>
-                    <td data-label="ID">#${id}</td>
-                    <td data-label="Nome">${user.name}</td>
-                    <td data-label="Età">${user.age}</td>
-                    <td data-label="Data">${user.date}</td>
-                    <td data-label="Azioni">
-                        <button class="btn-edit" onclick="editUser('${id}', '${user.name}', '${user.age}', '${user.date}')">Modifica</button>
-                        <button class="btn-delete" onclick="deleteUser('${id}')">Elimina</button>
-                    </td>
-                </tr>
+            const tr = document.createElement('tr');
+            
+            // Escape dei dati per sicurezza
+            const safeName = escapeHtml(user.name);
+            const safeAge = escapeHtml(user.age);
+            const safeDate = escapeHtml(user.date);
+            
+            tr.innerHTML = `
+                <td data-label="ID">#${id}</td>
+                <td data-label="Nome">${safeName}</td>
+                <td data-label="Età">${safeAge}</td>
+                <td data-label="Data">${safeDate}</td>
+                <td data-label="Azioni">
+                    <button class="btn-edit" data-action="edit">Modifica</button>
+                    <button class="btn-delete" data-action="delete">Elimina</button>
+                </td>
             `;
+            
+            // Event delegation per evitare problemi con apici nei dati
+            tr.querySelector('[data-action="edit"]').addEventListener('click', () => {
+                editUser(id, user.name, user.age, user.date);
+            });
+            
+            tr.querySelector('[data-action="delete"]').addEventListener('click', () => {
+                deleteUser(id);
+            });
+            
+            tbody.appendChild(tr);
         });
+    }
+    
+    // Funzione di escape HTML per prevenire XSS
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
     }
     
     async function saveUser() {
         const id = document.getElementById('editId').value;
-        const name = document.getElementById('nome').value;
+        const name = document.getElementById('nome').value.trim();
         const age = document.getElementById('eta').value;
         const date = document.getElementById('data').value;
     
         if(!name || !age || !date) {
             alert("Compila tutti i campi!");
+            return;
+        }
+        
+        // Validazione età
+        const ageNum = parseInt(age);
+        if(isNaN(ageNum) || ageNum < 0 || ageNum > 150) {
+            alert("Inserisci un'età valida (0-150)");
             return;
         }
     
@@ -306,7 +337,7 @@
                     "Content-Type": "application/json",
                     "Accept": "application/json"
                 },
-                body: JSON.stringify({ name, age, date })
+                body: JSON.stringify({ name, age: ageNum, date })
             });
     
             if(res.ok) {
@@ -314,10 +345,12 @@
                 fetchUsers();
                 showStatus();
             } else {
-                alert("Errore nel salvataggio");
+                const error = await res.json();
+                alert("Errore nel salvataggio: " + (error.errore || "Errore sconosciuto"));
             }
         } catch (err) {
-            alert("Errore durante il salvataggio");
+            console.error(err);
+            alert("Errore durante il salvataggio. Verifica la connessione al server.");
         }
     }
     
@@ -325,11 +358,16 @@
         if(!confirm("Sei sicuro di voler eliminare questo utente?")) return;
     
         try {
-            await fetch(`${baseUrl}/${id}`, { method: "DELETE" });
-            fetchUsers();
-            showStatus();
+            const res = await fetch(`${baseUrl}/${id}`, { method: "DELETE" });
+            if(res.ok) {
+                fetchUsers();
+                showStatus();
+            } else {
+                alert("Errore nell'eliminazione");
+            }
         } catch (err) {
             console.error(err);
+            alert("Errore durante l'eliminazione");
         }
     }
     
