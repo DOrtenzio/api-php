@@ -1,0 +1,21 @@
+get e get/id in json
+curl -X GET http://localhost/wsphp/api/ -H "Accept: application/json"
+curl -X GET http://localhost/wsphp/api/0 -H "Accept: application/json"
+
+get in xml
+curl -X GET http://localhost/wsphp/api/ -H "Accept: application/xml"
+
+post json
+curl -X POST http://localhost/wsphp/api/ -H "Content-Type: application/json" -H "Accept: application/json" -d "{\"name\":\"Mario Rossi\",\"age\":30,\"date\":\"1994-05-20\"}"
+
+post xml
+curl -X POST http://localhost/wsphp/api/ -H "Content-Type: application/xml" -H "Accept: application/xml" -d "<root><name>Luca Bianchi</name><age>25</age><date>1999-02-10</date></root>"
+
+put json
+curl -X PUT http://localhost/wsphp/api/0 -H "Content-Type: application/json" -H "Accept: application/json" -d "{\"name\":\"Mario Aggiornato\",\"age\":35,\"date\":\"1989-03-15\"}"
+
+put xml
+curl -X PUT http://localhost/wsphp/api/0 -H "Content-Type: application/xml" -H "Accept: application/xml" -d "<root><name>Nome XML</name><age>40</age><date>1984-07-21</date></root>"
+
+delete
+curl -X DELETE http://localhost/wsphp/api/0 -H "Accept: application/json"

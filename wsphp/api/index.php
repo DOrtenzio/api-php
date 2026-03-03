@@ -34,14 +34,22 @@ $dbJSON = leggiFile();
 switch ($metodo) {
     case "GET":
         if ($id !== null) {
-            if (isset($dbJSON[$id])) {
-                inviaRisposta(200, $dbJSON[$id], $formatoRichiesto);
+            $utenteTrovato = null;
+            foreach ($dbJSON as $utente) {
+                if (isset($utente["id"]) && $utente["id"] == $id) {
+                    $utenteTrovato = $utente;
+                    break;
+                }
+            }
+            if ($utenteTrovato !== null) {
+                inviaRisposta(200, $utenteTrovato, $formatoRichiesto);
             } else {
                 inviaRisposta(404, ["errore" => "Id inesistente"], $formatoRichiesto);
             }
         } else {
-            inviaRisposta(200, $dbJSON, $formatoRichiesto);
+            inviaRisposta(200, array_values($dbJSON), $formatoRichiesto);
         }
+    
         break;
         
     case "POST":
@@ -69,16 +77,18 @@ switch ($metodo) {
             inviaRisposta(400, ["errore" => "Data non valida"], $formatoRichiesto);
         }
         
-        if(empty($dbJSON)) {
-            $nuovoId = 0;
-        } else {
-            $nuovoId = max(array_keys($dbJSON)) + 1;
+        $nuovoId = 0;
+        if (!empty($dbJSON)) {
+            $ids = array_column($dbJSON, "id");
+            $nuovoId = max($ids) + 1;
         }
         
+        $nuovoUtente["id"] = $nuovoId;
+
         $dbJSON[$nuovoId] = $nuovoUtente;
         scriviNelFile($dbJSON);
 
-        inviaRisposta(201, ["id" => $nuovoId, "obj" => $nuovoUtente], $formatoRichiesto);
+        inviaRisposta(201, $nuovoUtente, $formatoRichiesto);
         break;
 
     case "PUT":
@@ -109,10 +119,11 @@ switch ($metodo) {
         if (!validaData($nuoviDatiUtente["date"])) {
             inviaRisposta(400, ["errore" => "Data non valida"], $formatoRichiesto);
         }
-        
+                
+        $nuoviDatiUtente["id"] = (int)$id;
         $dbJSON[$id] = $nuoviDatiUtente;
         scriviNelFile($dbJSON);
-        inviaRisposta(200, ["messaggio" => "Utente aggiornato", "obj" => $nuoviDatiUtente], $formatoRichiesto);
+        inviaRisposta(200, $nuoviDatiUtente, $formatoRichiesto);
         break;
 
     case "DELETE":
